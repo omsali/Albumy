@@ -17,6 +17,8 @@
         href="{{ url_for('.search', q=q, category='user') }}">User</a>
       <a class="nav-item nav-link {% if category == 'tag' %}active{% endif %}"
         href="{{ url_for('.search', q=q, category='tag') }}">Tag</a>
+      <a class="nav-item nav-link {% if category == 'objects' %}active{% endif %}"
+        href="{{ url_for('.search_by_objects', q=q) }}">Objects (ML)</a>
     </div>
   </div>
   <div class="col-md-9">
@@ -27,6 +29,8 @@
         {{ photo_card(item) }}
       {% elif category == 'user' %}
         {{ user_card(item) }}
+      {% elif category == 'objects' %}
+        {{ photo_card(item) }}
       {% else %}
       <a class="badge text-bg-light rounded-pill" href="{{ url_for('.show_tag', tag_id=item.id) }}">
         {{ item.name }} {{ item.photos|length }}
