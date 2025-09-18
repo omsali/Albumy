@@ -48,10 +48,10 @@ To initialize the app, run the following commands:
 
 ```bash
 # Initialize the database
-$ python3 -c "from moments import create_app; app = create_app('development'); app.app_context().push(); from moments.core.extensions import db; db.create_all(); print('Database initialized')"
+$ python -c "from moments import create_app; app = create_app('development'); app.app_context().push(); from moments.core.extensions import db; db.create_all(); print('Database initialized')"
 
 # Run database migration (adds ML fields)
-$ python3 migrate_db.py
+$ python migrate_db.py
 ```
 
 If you just want to try it out, generate fake data with `flask lorem` command then run the app:
