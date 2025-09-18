@@ -158,6 +158,10 @@ def upload():
         f = request.files.get('file')
         if not validate_image(f.filename):
             return 'Invalid image.', 400
+        
+        # Get description from form data if provided
+        description = request.form.get('description', '').strip()
+        
         filename = rename_image(f.filename)
         f.save(current_app.config['MOMENTS_UPLOAD_PATH'] / filename)
         filename_s = resize_image(f, filename, current_app.config['MOMENTS_PHOTO_SIZES']['small'])
@@ -165,7 +169,11 @@ def upload():
         
         # Create photo object
         photo = Photo(
-            filename=filename, filename_s=filename_s, filename_m=filename_m, author=current_user._get_current_object()
+            filename=filename, 
+            filename_s=filename_s, 
+            filename_m=filename_m, 
+            description=description if description else None,
+            author=current_user._get_current_object()
         )
         db.session.add(photo)
         db.session.commit()
@@ -177,6 +185,11 @@ def upload():
             # Generate alternative text
             alt_text = ml_analyzer.generate_alt_text(str(image_path))
             photo.alt_text = alt_text
+            
+            # If no description was provided by user, use the generated alt text as description
+            if not photo.description or photo.description.strip() == "":
+                photo.description = alt_text
+                current_app.logger.info(f"Auto-populated description with alt text for photo {photo.id}")
             
             # Detect objects
             detected_objects = ml_analyzer.detect_objects(str(image_path))

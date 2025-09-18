@@ -15,20 +15,25 @@ I enhanced the Moments photo sharing application with two key ML-powered feature
 
 ### Alternative Text Generation Implementation
 
-**Location**: `moments/ml_services.py` (lines 1-85), `moments/blueprints/main.py` (lines 145-162)
+**Location**: `moments/ml_services.py` (lines 1-85), `moments/blueprints/main.py` (lines 177-184)
 
 The alternative text generation uses the BLIP (Bootstrapping Language-Image Pre-training) model from Salesforce. When a user uploads a photo:
 
 1. The image is processed through the `MLImageAnalyzer.generate_alt_text()` method
 2. The BLIP model generates a descriptive caption (max 50 words, beam search with 5 beams)
 3. The generated text is stored in the `alt_text` field of the Photo model
-4. All image tags in templates include the `alt` attribute with this generated text
+4. **Smart Description Logic**: If no user description is provided, the generated alt text is also used as the photo description
+5. All image tags in templates include the `alt` attribute with this generated text
 
 **Key Code**:
 ```python
-# In upload route (main.py:150-151)
+# In upload route (main.py:178-184)
 alt_text = ml_analyzer.generate_alt_text(str(image_path))
 photo.alt_text = alt_text
+
+# Smart description logic
+if not photo.description or photo.description.strip() == "":
+    photo.description = alt_text
 ```
 
 **Template Integration**:

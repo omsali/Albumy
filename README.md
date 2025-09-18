@@ -92,6 +92,12 @@ When you upload a photo, the system automatically:
 2. Generates descriptive alternative text
 3. Stores the text in the database
 4. Includes it in the HTML `alt` attribute for accessibility
+5. **Auto-populates the photo description** if you don't provide one
+
+**Smart Description Logic:**
+- If you provide a description during upload → Your description is used
+- If you leave the description empty → AI-generated description is automatically added
+- This ensures every photo has a meaningful description for better user experience
 
 ### Object-Based Search
 

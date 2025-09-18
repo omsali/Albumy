@@ -14,7 +14,22 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    {{ dropzone.create(action='main.upload') }}
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Upload Photos</h5>
+        <p class="card-text">Drag and drop images here or click to select files. You can optionally add a description for each photo.</p>
+        
+        <!-- Description field -->
+        <div class="mb-3">
+          <label for="description" class="form-label">Description (Optional)</label>
+          <textarea class="form-control" id="description" name="description" rows="3" 
+                    placeholder="Add a description for your photo... (Leave empty for auto-generated description)"></textarea>
+          <div class="form-text">If you leave this empty, we'll automatically generate a description using AI.</div>
+        </div>
+        
+        {{ dropzone.create(action='main.upload') }}
+      </div>
+    </div>
     <a class="btn btn-light float-end" href="{{ url_for('user.index', username=current_user.username) }}">
       Done
     </a>
@@ -25,5 +40,29 @@
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/dropzone.min.js') }}"></script>
-{{ dropzone.config() }}
+<script>
+Dropzone.options.dropzone = {
+    paramName: "file",
+    maxFilesize: 3,
+    acceptedFiles: ".png,.jpg,.jpeg",
+    addRemoveLinks: true,
+    dictDefaultMessage: "Drop files here to upload",
+    dictRemoveFile: "Remove",
+    dictCancelUpload: "Cancel",
+    init: function() {
+        this.on("sending", function(file, xhr, formData) {
+            // Add description to form data
+            var description = document.getElementById('description').value;
+            if (description) {
+                formData.append('description', description);
+            }
+        });
+        
+        this.on("success", function(file, response) {
+            // Clear description field after successful upload
+            document.getElementById('description').value = '';
+        });
+    }
+};
+</script>
 {% endblock %}
