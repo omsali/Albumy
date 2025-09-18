@@ -27,6 +27,9 @@
           <div class="form-text">If you leave this empty, we'll automatically generate a description using AI.</div>
         </div>
         
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
         {{ dropzone.create(action='main.upload') }}
       </div>
     </div>
@@ -51,6 +54,11 @@ Dropzone.options.dropzone = {
     dictCancelUpload: "Cancel",
     init: function() {
         this.on("sending", function(file, xhr, formData) {
+            // Add CSRF token
+            if (window.csrfToken) {
+                formData.append('csrf_token', window.csrfToken);
+            }
+            
             // Add description to form data
             var description = document.getElementById('description').value;
             if (description) {
