@@ -36,6 +36,12 @@ class BaseConfig:
 
     SECRET_KEY = os.getenv('SECRET_KEY', 'secret string')
     MAX_CONTENT_LENGTH = 3 * 1024 * 1024  # file size exceed to 3 Mb will return a 413 error response.
+    
+    # Session configuration
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
 
     BOOTSTRAP_SERVE_LOCAL = True
 
@@ -55,7 +61,7 @@ class BaseConfig:
     DROPZONE_ALLOWED_FILE_TYPE = '.png,.jpg,.jpeg'
     DROPZONE_MAX_FILE_SIZE = 3
     DROPZONE_MAX_FILES = 30
-    DROPZONE_ENABLE_CSRF = True
+    DROPZONE_ENABLE_CSRF = False
 
     WHOOSHEE_MIN_STRING_LEN = 1
     MOMENTS_SLOW_QUERY_THRESHOLD = 1
