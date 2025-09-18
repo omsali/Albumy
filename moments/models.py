@@ -279,12 +279,14 @@ photo_tag = db.Table(
 )
 
 
-@whooshee.register_model('description')
+@whooshee.register_model('description', 'alt_text', 'detected_objects')
 class Photo(db.Model):
     __tablename__ = 'photo'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[Optional[str]] = mapped_column(String(500))
+    alt_text: Mapped[Optional[str]] = mapped_column(String(500))  # ML-generated alternative text
+    detected_objects: Mapped[Optional[str]] = mapped_column(Text)  # JSON string of detected objects
     filename: Mapped[str] = mapped_column(String(64))
     filename_s: Mapped[str] = mapped_column(String(64))
     filename_m: Mapped[str] = mapped_column(String(64))
@@ -310,6 +312,32 @@ class Photo(db.Model):
     @property
     def comments_count(self):
         return db.session.scalar(select(func.count(Comment.id)).filter_by(photo_id=self.id))
+
+    def get_detected_objects_list(self):
+        """Parse detected objects JSON string into a list."""
+        if not self.detected_objects:
+            return []
+        try:
+            import json
+            return json.loads(self.detected_objects)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def set_detected_objects(self, objects_list):
+        """Set detected objects from a list."""
+        import json
+        self.detected_objects = json.dumps(objects_list)
+
+    def get_searchable_keywords(self):
+        """Get searchable keywords from detected objects and alt text."""
+        keywords = []
+        if self.alt_text:
+            keywords.extend([word.lower().strip('.,!?') for word in self.alt_text.split() 
+                           if len(word) > 2 and word.isalpha()])
+        for obj in self.get_detected_objects_list():
+            if obj.get('confidence', 0) > 0.5:
+                keywords.append(obj.get('label', '').lower())
+        return list(set(keywords))
 
     def __repr__(self):
         return f'Photo {self.id}: {self.filename}'

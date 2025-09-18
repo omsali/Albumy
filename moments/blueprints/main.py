@@ -9,6 +9,7 @@ from moments.forms.main import CommentForm, DescriptionForm, TagForm
 from moments.models import Collection, Comment, Follow, Notification, Photo, Tag, User
 from moments.notifications import push_collect_notification, push_comment_notification
 from moments.utils import flash_errors, redirect_back, rename_image, resize_image, validate_image
+from moments.ml_services import ml_analyzer
 
 main_bp = Blueprint('main', __name__)
 
@@ -57,6 +58,7 @@ def search():
     category = request.args.get('category', 'photo')
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['MOMENTS_SEARCH_RESULT_PER_PAGE']
+    
     # TODO: add SQLAlchemy 2.x support to Flask-Whooshee then update the following code
     if category == 'user':
         pagination = User.query.whooshee_search(q).paginate(page=page, per_page=per_page)
@@ -66,6 +68,33 @@ def search():
         pagination = Photo.query.whooshee_search(q).paginate(page=page, per_page=per_page)
     results = pagination.items
     return render_template('main/search.html', q=q, results=results, pagination=pagination, category=category)
+
+
+@main_bp.route('/search/objects')
+def search_by_objects():
+    """Search photos by detected objects using ML analysis."""
+    q = request.args.get('q', '').strip().lower()
+    if not q:
+        flash('Enter keyword to search for objects in photos.', 'warning')
+        return redirect_back()
+
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['MOMENTS_SEARCH_RESULT_PER_PAGE']
+    
+    # Search in both alt_text and detected_objects fields
+    stmt = (
+        select(Photo)
+        .filter(
+            (Photo.alt_text.ilike(f'%{q}%')) |
+            (Photo.detected_objects.ilike(f'%{q}%'))
+        )
+        .order_by(Photo.created_at.desc())
+    )
+    
+    pagination = db.paginate(stmt, page=page, per_page=per_page)
+    results = pagination.items
+    
+    return render_template('main/search.html', q=q, results=results, pagination=pagination, category='objects')
 
 
 @main_bp.route('/notifications')
@@ -133,11 +162,33 @@ def upload():
         f.save(current_app.config['MOMENTS_UPLOAD_PATH'] / filename)
         filename_s = resize_image(f, filename, current_app.config['MOMENTS_PHOTO_SIZES']['small'])
         filename_m = resize_image(f, filename, current_app.config['MOMENTS_PHOTO_SIZES']['medium'])
+        
+        # Create photo object
         photo = Photo(
             filename=filename, filename_s=filename_s, filename_m=filename_m, author=current_user._get_current_object()
         )
         db.session.add(photo)
         db.session.commit()
+        
+        # Generate ML analysis asynchronously (in a real app, use Celery or similar)
+        try:
+            image_path = current_app.config['MOMENTS_UPLOAD_PATH'] / filename
+            
+            # Generate alternative text
+            alt_text = ml_analyzer.generate_alt_text(str(image_path))
+            photo.alt_text = alt_text
+            
+            # Detect objects
+            detected_objects = ml_analyzer.detect_objects(str(image_path))
+            photo.set_detected_objects(detected_objects)
+            
+            db.session.commit()
+            current_app.logger.info(f"ML analysis completed for photo {photo.id}")
+            
+        except Exception as e:
+            current_app.logger.error(f"ML analysis failed for photo {photo.id}: {e}")
+            # Continue without ML analysis - don't fail the upload
+        
     return render_template('main/upload.html')
 
 
