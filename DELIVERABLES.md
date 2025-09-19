@@ -2,9 +2,9 @@
 
 Submission metadata (fill on GitHub build): commit URL and repository URL are prepended by CI in the rendered PDF artifact.
 
-## 1) Technical Description (1 page max)
+## 1) Technical Description
 
-This Moments fork adds two ML-powered features using off-the-shelf models (no training):
+This Moments fork adds two ML-powered features using off-the-shelf models:
 
 - Alternative Text Generation (Image Captioning)
   - Model: Salesforce/blip-image-captioning-base (Hugging Face Transformers)
@@ -37,7 +37,7 @@ Behavior
   5) Renders `<img alt="...">` from `alt_text`
   6) Enables search by object keywords/alt text via `/search/objects`
 
-## 2) User Interface Design Approach (1 page max)
+## 2) User Interface Design Approach
 
 Recommendations per feature
 
@@ -60,7 +60,7 @@ If given more time
 - Provide a review prompt post-upload: “Use this generated description?” with Accept/Edit options
 - Surfacing detected object tags visually (chips) with quick-add to user tags
 
-## 3) Harms (1 page max)
+## 3) Harms
 
 Potential harms
 
@@ -80,7 +80,7 @@ Potential harms
   - Risk: captions/keywords surface harmful content more easily
   - Mitigation: moderation pipeline on generated text; blocklist; rate limits
 
-## 4) Production Challenges (1 page max)
+## 4) Production Challenges
 
 Scalability / Latency
 
