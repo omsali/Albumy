@@ -19,7 +19,7 @@ This enhanced version includes:
 Clone the repo:
 
 ```
-$ git clone https://github.com/greyli/moments
+$ git clone [https://github.com/greyli/moments](https://github.com/omsali/Albumy)
 $ cd moments
 ```
 
@@ -154,45 +154,7 @@ You can search for photos by objects they contain:
 5. If the user did not provide a description, the generated `alt_text` becomes the `description`
 6. Templates render accessible `<img alt>` and search can leverage ML outputs
 
-## Running Locally (Quick Start)
 
-1) Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-2) Initialize database and run migration
-```bash
-python3 -c "from moments import create_app; app = create_app('development'); app.app_context().push(); from moments.core.extensions import db; db.create_all(); print('Database initialized')"
-python3 migrate_db.py
-```
-
-3) (Optional) Seed sample data
-```bash
-flask lorem
-```
-
-4) Start the app
-```bash
-flask run
-# open http://127.0.0.1:5000/
-```
-
-Login for demo:
-- email: `admin@helloflask.com`
-- password: `moments`
-
-## Build Deliverables PDF via GitHub
-
-This repository includes a GitHub Actions workflow to render a PDF from `DELIVERABLES.md` and prepend submission metadata (commit URL and repository URL).
-
-Steps:
-- Push to `main` (or trigger the workflow manually under Actions → Build Deliverables PDF)
-- Download artifact `deliverables-pdf` → `DELIVERABLES.pdf`
-
-## Troubleshooting
-
-- First run downloads models; allow several minutes and ensure internet access
 - If uploads work but you see blank alt text on the very first request, wait until the model finishes its initial download and retry the upload
 
 ## License
