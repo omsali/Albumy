@@ -178,6 +178,11 @@ def upload():
             alt_text = ml_analyzer.generate_alt_text(str(image_path))
             photo.alt_text = alt_text
             
+            # Auto-populate description with alt text if no description provided
+            if not photo.description or photo.description.strip() == "":
+                photo.description = alt_text
+                current_app.logger.info(f"Auto-populated description with alt text for photo {photo.id}")
+            
             # Detect objects
             detected_objects = ml_analyzer.detect_objects(str(image_path))
             photo.set_detected_objects(detected_objects)
