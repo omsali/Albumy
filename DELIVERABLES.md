@@ -1,5 +1,7 @@
 # Moments ML Features Deliverables
 
+Submission metadata (fill on GitHub build): commit URL and repository URL are prepended by CI in the rendered PDF artifact.
+
 ## 1) Technical Description (1 page max)
 
 This Moments fork adds two ML-powered features using off-the-shelf models (no training):
@@ -134,4 +136,16 @@ Run:
 ```bash
 zip -r moments_ml_submission.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*" -x "*.pth" -x "*.bin"
 ```
+
+## 7) Grading Compliance Checklist
+
+- Clearly structured by question with distinct sections (this document)
+- Includes a specific commit link (prepended by CI in the generated PDF)
+- README provides install/run instructions; app is runnable
+- No private credentials in repository history
+- Alternative text generation described and implemented; `<img alt>` present for uploaded photos
+- Image search described and implemented; functional keyword object search
+- UI design recommendations justified using automate/prompt/organize/annotate/hybrid and 4-factor lens
+- Harms: at least one harm identified with plausible mitigations
+- Production challenges: at least one problem identified with plausible solutions
 

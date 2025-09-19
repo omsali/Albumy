@@ -182,6 +182,14 @@ Login for demo:
 - email: `admin@helloflask.com`
 - password: `moments`
 
+## Build Deliverables PDF via GitHub
+
+This repository includes a GitHub Actions workflow to render a PDF from `DELIVERABLES.md` and prepend submission metadata (commit URL and repository URL).
+
+Steps:
+- Push to `main` (or trigger the workflow manually under Actions → Build Deliverables PDF)
+- Download artifact `deliverables-pdf` → `DELIVERABLES.pdf`
+
 ## Troubleshooting
 
 - First run downloads models; allow several minutes and ensure internet access

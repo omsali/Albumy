@@ -1,0 +1,44 @@
+name: Build Deliverables PDF
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set variables
+        id: meta
+        run: |
+          echo "repo_url=https://github.com/${{ github.repository }}" >> $GITHUB_OUTPUT
+          echo "commit_url=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Install pandoc and wkhtmltopdf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc wkhtmltopdf
+
+      - name: Prepare renderable Markdown with commit link
+        run: |
+          echo "# Submission Metadata" > DELIVERABLES.render.md
+          echo "" >> DELIVERABLES.render.md
+          echo "Commit: ${{ steps.meta.outputs.commit_url }}" >> DELIVERABLES.render.md
+          echo "Repository: ${{ steps.meta.outputs.repo_url }}" >> DELIVERABLES.render.md
+          echo "" >> DELIVERABLES.render.md
+          cat DELIVERABLES.md >> DELIVERABLES.render.md
+
+      - name: Build PDF
+        run: |
+          pandoc -V geometry:margin=1in --pdf-engine=wkhtmltopdf -s DELIVERABLES.render.md -o DELIVERABLES.pdf
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deliverables-pdf
+          path: DELIVERABLES.pdf
+
